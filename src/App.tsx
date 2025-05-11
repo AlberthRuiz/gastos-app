@@ -1,14 +1,26 @@
-import { Link } from 'react-router'
+import { BrowserRouter, Route, Routes } from 'react-router'
 import './App.css'
+import Home from './pages/Home'
+import Register from './pages/Register'
+import Login from './pages/Login'
 
 
 function App() {
   return (
-    <h1>
-      <Link  to="/demo">
-         Click to demo
-      </Link>
-    </h1>
+    <BrowserRouter>
+     <Routes>
+      <Route path="/" element={<Home />} />
+       <Route 
+          path="/register" 
+          element={ <Register />} 
+        />
+      <Route 
+          path="/login" 
+          element={ <Login />}
+        />
+    </Routes>
+    
+  </BrowserRouter>
       
     
   )
