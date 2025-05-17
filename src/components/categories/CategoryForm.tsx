@@ -1,5 +1,17 @@
 import { useState } from 'react';
 import { Category } from "../../types/category";
+import { FaTag, FaUtensils, FaCar, FaHome, FaShoppingCart, FaMoneyBillWave, FaHeart, FaPlane } from "react-icons/fa";
+
+const ICONS = [
+  { name: "FaTag", icon: FaTag, color: "#6366f1" },           // Indigo
+  { name: "FaUtensils", icon: FaUtensils, color: "#f59e42" }, // Orange
+  { name: "FaCar", icon: FaCar, color: "#22d3ee" },           // Cyan
+  { name: "FaHome", icon: FaHome, color: "#10b981" },         // Green
+  { name: "FaShoppingCart", icon: FaShoppingCart, color: "#f43f5e" }, // Pink
+  { name: "FaMoneyBillWave", icon: FaMoneyBillWave, color: "#84cc16" }, // Lime
+  { name: "FaHeart", icon: FaHeart, color: "#ef4444" },       // Red
+  { name: "FaPlane", icon: FaPlane, color: "#3b82f6" },       // Blue
+];
 
 interface CategoryFormProps {
   onSubmit: (category: Omit<Category, 'id' | 'userId' | 'createdAt'>) => void;
@@ -7,15 +19,14 @@ interface CategoryFormProps {
   onCancel: () => void;
 }
 
-
 export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, initialValues, onCancel }) => {
   const [name, setName] = useState(initialValues?.name || '');
-  const [color, setColor] = useState(initialValues?.color || '#3B82F6');
   const [type, setType] = useState<'income' | 'expense'>(initialValues?.type || 'expense');
+  const [icon, setIcon] = useState(initialValues?.icon || 'FaTag');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, color, type });
+    onSubmit({ name,type, icon });
   };
 
   return (
@@ -35,16 +46,22 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, initialVal
       </div>
 
       <div>
-        <label htmlFor="color" className="block text-sm font-medium text-gray-700">
-          Color
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Icono
         </label>
-        <input
-          type="color"
-          id="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          className="mt-1 block w-full h-10 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        />
+        <div className="flex space-x-3">
+            {ICONS.map(({ name, icon: IconComponent, color }) => (
+            <button
+              type="button"
+              key={name}
+              onClick={() => setIcon(name)}
+              className={`p-2 rounded ${icon === name ? 'ring-2 ring-blue-500' : ''}`}
+              aria-label={name}
+            >
+              <IconComponent size={28} color={color} />
+            </button>
+            ))}
+        </div>
       </div>
 
       <div>
