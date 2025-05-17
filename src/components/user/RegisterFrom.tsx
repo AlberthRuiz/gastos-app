@@ -1,17 +1,30 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
+import { useAuth } from "../../hooks/userAuth";
+
 function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const { register, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Registering user:', { email, password, displayName });
+    await register(email, password, displayName);
+      navigate('/');
   };
-  const handleGoogleRegister = () => {
-    console.log('Registrando con Google');
+ 
+  const handleGoogleRegister = async () => {
+    try {
+      setError('');
+      await loginWithGoogle();
+      navigate('/');
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -103,3 +116,5 @@ function RegisterForm() {
   );
 }
 export default RegisterForm;
+
+
