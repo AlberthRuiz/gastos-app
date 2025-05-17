@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../hooks/userAuth";
 
-
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +12,16 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    console.log(error);
+    // Validación básica de email
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setError("Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+    if (!password) {
+      setError("Por favor, ingresa una contraseña.");
+      return;
+    }
 
     try {
       await login(email, password);
@@ -23,9 +32,9 @@ function LoginForm() {
   };
   const handleGoogleLogin = async () => {
     try {
-      setError('');
+      setError("");
       await loginWithGoogle();
-      navigate('/');
+      navigate("/");
     } catch (err: any) {
       setError(err.message);
     }
@@ -84,9 +93,7 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            {error && (
-              <p className="text-red-500 text-xs italic mt-4">{error}</p>
-            )}
+
             <div className="mt-8">
               <button
                 type="submit"

@@ -11,10 +11,28 @@ function RegisterForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log(error);
     e.preventDefault();
-    console.log('Registering user:', { email, password, displayName });
-    await register(email, password, displayName);
+    setError('');
+    // Validación básica de email
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+    if (!password) {
+      setError('Por favor, ingresa una contraseña.');
+      return;
+    }
+    if (!displayName) {
+      setError('Por favor, ingresa un nombre de usuario.');
+      return;
+    }
+    try {
+      await register(email, password, displayName);
       navigate('/');
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
  
   const handleGoogleRegister = async (e: React.FormEvent) => {
@@ -88,9 +106,7 @@ function RegisterForm() {
                 onChange={(e) => setDisplayName(e.target.value)}
               />
             </div>
-            {error && (
-              <p className="text-red-500 text-xs italic mt-4">{error}</p>
-            )}
+           
             <div className="mt-8">
               <button
                 type="submit"
