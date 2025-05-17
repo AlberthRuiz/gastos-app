@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../hooks/userAuth";
 
@@ -17,8 +17,9 @@ function RegisterForm() {
       navigate('/');
   };
  
-  const handleGoogleRegister = async () => {
+  const handleGoogleRegister = async (e: React.FormEvent) => {
     try {
+      e.preventDefault();
       setError('');
       await loginWithGoogle();
       navigate('/');

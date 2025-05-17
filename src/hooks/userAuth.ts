@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
+
+// Extend the Window interface to include gapi
+declare global {
+  interface Window {
+    gapi?: any;
+  }
+}
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -92,7 +99,17 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
+      // Sign out from Firebase Auth
       await signOut(auth);
+
+      // Also sign out from Google if user is signed in with Google
+      if (window.gapi && window.gapi.auth2) {
+        const auth2 = window.gapi.auth2.getAuthInstance();
+        if (auth2 && auth2.isSignedIn.get()) {
+          await auth2.signOut();
+        }
+      }
+
       setUser(null);
     } catch (err: any) {
       setError(err.message);

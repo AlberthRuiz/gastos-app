@@ -1,9 +1,11 @@
+import { CategoryList } from "../components/categories/CategoryList";
+import { Layout } from "../components/common/Layout";
+
 function Categories() {
   return (
-    <div>
-      <h1>Categories</h1>
-      <p>List of categories will be displayed here.</p>
-    </div>
+    <Layout>
+      <CategoryList />
+    </Layout>
   );
 }
 export default Categories;
