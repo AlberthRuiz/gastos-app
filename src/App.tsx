@@ -7,6 +7,7 @@ import Spinner from "./components/common/Spinner";
 import Home from "./pages/Home";
 import { RequireAuth } from "./context/AuthContext";
 import Categories from "./pages/Categories";
+import { Dashboard } from "./pages/Dashboard";
 
 function App() {
   const { user, loading } = useAuth();
@@ -17,7 +18,7 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={user ? <Navigate to="/categories" /> : <Home />}
+        element={user ? <Dashboard/> : <Home />}
       />
       <Route
         path="/register"
