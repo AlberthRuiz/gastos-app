@@ -3,10 +3,12 @@ import { CategoryForm } from "./CategoryForm";
 import { Category } from "../../types/category";
 import { CategoryItem } from "./CategoryItem";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 export const CategoryList: React.FC = () => {
   const { categories, addCategory, updateCategory, deleteCategory } =
     useCategories();
+
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
@@ -28,10 +30,20 @@ export const CategoryList: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres eliminar esta categoría?")
-    ) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará la categoría.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
       await deleteCategory(id);
+      Swal.fire("Eliminado", "La categoría ha sido eliminada.", "success");
     }
   };
 
@@ -56,6 +68,7 @@ export const CategoryList: React.FC = () => {
             {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
           </h3>
           <CategoryForm
+            key={editingCategory ? editingCategory.id : "new"}
             onSubmit={handleSubmit}
             initialValues={editingCategory || undefined}
             onCancel={() => {

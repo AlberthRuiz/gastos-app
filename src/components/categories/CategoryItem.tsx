@@ -6,18 +6,19 @@ interface CategoryItemProps {
   onDelete: (id: string) => void;
 }
 
-export const CategoryItem: React.FC<CategoryItemProps> = ({ category, onEdit, onDelete }) => {
+export const CategoryItem: React.FC<CategoryItemProps> = ({
+  category,
+  onEdit,
+  onDelete,
+}) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">
       <div className="flex items-center space-x-3">
-        <div 
-          className="w-4 h-4 rounded-full"
-          style={{ backgroundColor: category.color }}
-        />
+        <div className="w-4 h-4 rounded-full" />
         <div>
           <p className="font-medium text-gray-900">{category.name}</p>
           <p className="text-sm text-gray-500">
-            {category.type === 'income' ? 'Ingreso' : 'Gasto'}
+            {category.type === "income" ? "Ingreso" : "Gasto"}
           </p>
         </div>
       </div>
