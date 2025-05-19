@@ -1,9 +1,11 @@
-function Income() {
+import React from 'react';
+import { Layout } from '../components/common/Layout';
+import { IncomeList } from '../components/income/IncomeList';
+
+export const Income: React.FC = () => {
   return (
-    <div>
-      <h1>Income</h1>
-      <p>This is the income page.</p>
-    </div>
+    <Layout>
+      <IncomeList />
+    </Layout>
   );
-}
-export default Income;
+};

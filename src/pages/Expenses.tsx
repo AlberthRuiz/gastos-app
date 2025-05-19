@@ -1,9 +1,11 @@
-function Expenses() {
+import React from 'react';
+import { Layout } from '../components/common/Layout';
+import { ExpensesList } from '../components/expenses/ExpenseList';
+
+export const Expenses: React.FC = () => {
   return (
-    <div>
-      <h1>Expenses</h1>
-      <p>Here you can manage your expenses.</p>
-    </div>
+    <Layout>
+      <ExpensesList />
+    </Layout>
   );
-}
-export default Expenses;
+};

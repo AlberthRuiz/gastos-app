@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import { RequireAuth } from "./context/AuthContext";
 import Categories from "./pages/Categories";
 import { Dashboard } from "./pages/Dashboard";
+import { Expenses } from "./pages/Expenses";
+import { Income } from "./pages/Income";
 
 function App() {
   const { user, loading } = useAuth();
@@ -33,6 +35,22 @@ function App() {
           </RequireAuth>
         }
       />
+      <Route
+          path="/expenses"
+          element={
+            <RequireAuth>
+              <Expenses />
+            </RequireAuth>
+          }
+        />
+         <Route
+          path="/income"
+          element={
+            <RequireAuth>
+              <Income />
+            </RequireAuth>
+          }
+        />
     </Routes>
   );
 }
