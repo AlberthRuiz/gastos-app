@@ -1,112 +1,134 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs, query, where, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../utils/firebase";
-import { Category } from "../types/category";
-import { useAuth } from "./userAuth";
+import { useState, useEffect, useCallback } from 'react';
+import { Category } from '../types/category';
+import { db } from '../utils/firebase';
+import { 
+  collection, 
+  query,
+  where,
+  addDoc, 
+  updateDoc,
+  deleteDoc, 
+  doc, 
+  serverTimestamp, 
+  onSnapshot,
+  Timestamp 
+} from 'firebase/firestore';
+import { useAuth } from './userAuth';
 
-export function useCategories() {
+export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
+  // Función para cargar categorías en tiempo real usando onSnapshot
   useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      setError(null);
+    if (!user) {
       setCategories([]);
-      
-      if (!user || !user.id) {
-
-        setLoading(false);
-        return;
-      }
-
-      try {
-
-        const userId = String(user.id).trim();
-
-
-        const categoriesRef = collection(db, "categories");
-        const q = query(
-          categoriesRef,
-          where("userId", "==", userId)
-
-        );
-
-        const querySnapshot = await getDocs(q);
-
-        const docs = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Category[];
-        
-        const sortedDocs = docs.sort((a, b) => {
-          if (a.name < b.name) return -1;
-          if (a.name > b.name) return 1;
-          return 0;
-        });
-        
-        setCategories(sortedDocs);
-      } catch (err: any) {
-
-        setError(err instanceof Error ? err : new Error("Error de firebase"));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, [user]);
-
-  const addCategory = async (categoryData: Omit<Category, "id" | "userId" | "createdAt">) => {
-    if (!user || !user.id) {
-      console.error("No user ID available for adding category");
+      setLoading(false);
       return;
     }
+
+    setLoading(true);
+    
+    // Crear la consulta para obtener categorías del usuario actual
+    const categoriesRef = collection(db, 'categories');
+    const q = query(categoriesRef, where('userId', '==', user.id));
+    
+    // Configurar listener en tiempo real
+    const unsubscribe = onSnapshot(q, 
+      (snapshot) => {
+        const categoriesData = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          // Transformar la marca de tiempo a string si es necesario
+          const createdAt = data.createdAt instanceof Timestamp 
+            ? data.createdAt.toDate().toISOString() 
+            : data.createdAt;
+            
+          return {
+            id: doc.id,
+            name: data.name,
+            icon: data.icon,
+            type: data.type,
+            userId: data.userId,
+            createdAt
+          } as Category;
+        });
+        
+        setCategories(categoriesData);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error('Error cargando categorías:', err);
+        setError('Error al cargar categorías. Por favor intenta de nuevo.');
+        setLoading(false);
+      }
+    );
+    
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const addCategory = useCallback(async (categoryData: Omit<Category, 'id' | 'userId' | 'createdAt'>) => {
+    if (!user) return null;
     
     try {
-      setError(null);
-      const userId = String(user.id).trim();
-      
-      const docRef = await addDoc(collection(db, "categories"), {
+      const newCategoryRef = await addDoc(collection(db, 'categories'), {
         ...categoryData,
-        userId: userId,
-        createdAt: new Date().toISOString(),
+        userId: user.id,
+        createdAt: serverTimestamp()
       });
       
-      console.log("Category added with ID:", docRef.id);
-      return docRef.id;
-    } catch (err: any) {
-      console.error("Error adding category:", err);
-      setError(err instanceof Error ? err : new Error("Error de firebase"));
-      throw err;
+      return newCategoryRef.id;
+    } catch (err) {
+      console.error('Error al agregar categoría:', err);
+      setError('Error al agregar la categoría. Por favor intenta de nuevo.');
+      return null;
     }
-  };
+  }, [user]);
 
-  const updateCategory = async (id: string, data: Partial<Category>) => {
+  const updateCategory = useCallback(async (
+    id: string, 
+    categoryData: Omit<Category, 'id' | 'userId' | 'createdAt'>
+  ) => {
+    if (!user) return false;
+    
     try {
-      setError(null);
-      const categoryRef = doc(db, "categories", id);
-      await updateDoc(categoryRef, data);
-    } catch (err: any) {
-      console.error("Error updating category:", err);
-      setError(err instanceof Error ? err : new Error("Error de firebase"));
-      throw err;
+      const categoryRef = doc(db, 'categories', id);
+      await updateDoc(categoryRef, {
+        ...categoryData,
+      });
+      
+      return true;
+    } catch (err) {
+      console.error('Error al actualizar categoría:', err);
+      setError('Error al actualizar la categoría. Por favor intenta de nuevo.');
+      return false;
     }
-  };
+  }, [user]);
 
-  const deleteCategory = async (id: string) => {
+  const deleteCategory = useCallback(async (id: string) => {
+    if (!user) return false;
+    
     try {
-      setError(null);
-      const categoryRef = doc(db, "categories", id);
+      const categoryRef = doc(db, 'categories', id);
       await deleteDoc(categoryRef);
-    } catch (err: any) {
-      console.error("Error deleting category:", err);
-      setError(err instanceof Error ? err : new Error("Error de firebase"));
-      throw err;
+      
+      return true;
+    } catch (err) {
+      console.error('Error al eliminar categoría:', err);
+      setError('Error al eliminar la categoría. Por favor intenta de nuevo.');
+      return false;
     }
-  };
+  }, [user]);
 
-  return { categories, loading, error, addCategory, updateCategory, deleteCategory };
-}
+  return {
+    categories,
+    loading,
+    error,
+    addCategory,
+    updateCategory,
+    deleteCategory
+  };
+};

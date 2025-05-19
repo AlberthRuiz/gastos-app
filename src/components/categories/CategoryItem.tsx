@@ -1,4 +1,6 @@
 import { Category } from "../../types/category";
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { ICONS } from "../../utils/helper";
 
 interface CategoryItemProps {
   category: Category;
@@ -11,10 +13,19 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const typeColorClass = category.type === "income"
+    ? "bg-green-500"
+    : "bg-red-500";
   return (
-    <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">
+    <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md mb-3 border-l-4 border-l-gray-800 hover:shadow-lg transition-all">
       <div className="flex items-center space-x-3">
-        <div className="w-4 h-4 rounded-full" />
+        <div className={`w-3 h-3 rounded-full ${typeColorClass}`} />
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+          {(() => {
+            const IconComponent = ICONS.find((icon) => icon.name === category.icon)?.icon;
+            return IconComponent ? <IconComponent /> : null;
+          })()}
+        </div>
         <div>
           <p className="font-medium text-gray-900">{category.name}</p>
           <p className="text-sm text-gray-500">
@@ -22,18 +33,20 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
           </p>
         </div>
       </div>
-      <div className="flex space-x-2">
+      <div className="flex space-x-3">
         <button
           onClick={() => onEdit(category)}
-          className="text-blue-600 hover:text-blue-800 transition"
+          className="flex items-center justify-center p-2 bg-gray-100 hover:bg-gray-200 text-blue-600 rounded-full transition-colors"
+          aria-label="Editar"
         >
-          Editar
+          <FiEdit2 className="w-4 h-4" />
         </button>
         <button
           onClick={() => onDelete(category.id)}
-          className="text-red-600 hover:text-red-800 transition"
+          className="flex items-center justify-center p-2 bg-gray-100 hover:bg-gray-200 text-red-600 rounded-full transition-colors"
+          aria-label="Eliminar"
         >
-          Eliminar
+          <FiTrash2 className="w-4 h-4" />
         </button>
       </div>
     </div>

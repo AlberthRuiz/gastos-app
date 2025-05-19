@@ -1,17 +1,6 @@
 import { useState } from 'react';
 import { Category } from "../../types/category";
-import { FaTag, FaUtensils, FaCar, FaHome, FaShoppingCart, FaMoneyBillWave, FaHeart, FaPlane } from "react-icons/fa";
-
-const ICONS = [
-  { name: "FaTag", icon: FaTag, color: "#6366f1" },           
-  { name: "FaUtensils", icon: FaUtensils, color: "#f59e42" },
-  { name: "FaCar", icon: FaCar, color: "#22d3ee" },
-  { name: "FaHome", icon: FaHome, color: "#10b981" },
-  { name: "FaShoppingCart", icon: FaShoppingCart, color: "#f43f5e" },
-  { name: "FaMoneyBillWave", icon: FaMoneyBillWave, color: "#84cc16" },
-  { name: "FaHeart", icon: FaHeart, color: "#ef4444" },
-  { name: "FaPlane", icon: FaPlane, color: "#3b82f6" },
-];
+import { ICONS } from "../../utils/helper";
 
 interface CategoryFormProps {
   onSubmit: (category: Omit<Category, 'id' | 'userId' | 'createdAt'>) => void;
@@ -26,7 +15,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, initialVal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name,type, icon });
+    onSubmit({ name, type, icon });
   };
 
   return (
@@ -49,18 +38,19 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, initialVal
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Icono
         </label>
-        <div className="flex space-x-3">
-            {ICONS.map(({ name, icon: IconComponent, color }) => (
+        {/* Cambiamos flex por grid para mejor visualización en móviles */}
+        <div className="grid grid-cols-5 gap-2">
+          {ICONS.map(({ name, icon: IconComponent, color }) => (
             <button
               type="button"
               key={name}
               onClick={() => setIcon(name)}
-              className={`p-2 rounded ${icon === name ? 'ring-2 ring-blue-500' : ''}`}
+              className={`p-2 flex items-center justify-center rounded ${icon === name ? 'ring-2 ring-blue-500' : 'border border-gray-200'}`}
               aria-label={name}
             >
-              <IconComponent size={28} color={color} />
+              <IconComponent size={24} color={color} />
             </button>
-            ))}
+          ))}
         </div>
       </div>
 

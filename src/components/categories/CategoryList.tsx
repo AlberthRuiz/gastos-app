@@ -4,12 +4,15 @@ import { Category } from "../../types/category";
 import { CategoryItem } from "./CategoryItem";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { Modal } from "../common/Modal";
+import React from "react";
+
 
 export const CategoryList: React.FC = () => {
   const { categories, addCategory, updateCategory, deleteCategory } =
     useCategories();
 
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const handleSubmit = async (
@@ -21,12 +24,12 @@ export const CategoryList: React.FC = () => {
     } else {
       await addCategory(categoryData);
     }
-    setShowForm(false);
+    setModalOpen(false);
   };
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -47,6 +50,10 @@ export const CategoryList: React.FC = () => {
     }
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -54,7 +61,7 @@ export const CategoryList: React.FC = () => {
         <button
           onClick={() => {
             setEditingCategory(null);
-            setShowForm(true);
+            setModalOpen(true);
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
         >
@@ -62,22 +69,18 @@ export const CategoryList: React.FC = () => {
         </button>
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
-          </h3>
-          <CategoryForm
-            key={editingCategory ? editingCategory.id : "new"}
-            onSubmit={handleSubmit}
-            initialValues={editingCategory || undefined}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingCategory(null);
-            }}
-          />
-        </div>
-      )}
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={closeModal}
+        title={editingCategory ? "Editar Categoría" : "Nueva Categoría"}
+      >
+        <CategoryForm
+          key={editingCategory ? editingCategory.id : "new"}
+          onSubmit={handleSubmit}
+          initialValues={editingCategory || undefined}
+          onCancel={closeModal}
+        />
+      </Modal>
 
       <div className="space-y-2">
         {categories.map((category) => (
