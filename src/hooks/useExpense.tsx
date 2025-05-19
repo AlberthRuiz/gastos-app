@@ -8,7 +8,7 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  doc 
+  doc
 } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Expense } from '../types/expense';
@@ -44,6 +44,7 @@ export const useExpenses = () => {
         setLoading(false);
       },
       (err) => {
+        console.error("Error obteniendo gastos:", err);
         setError(err.message);
         setLoading(false);
       }
@@ -60,9 +61,10 @@ export const useExpenses = () => {
       await addDoc(collection(db, 'expenses'), {
         ...expenseData,
         userId: user.id,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       });
     } catch (err: any) {
+      console.error("Error añadiendo gasto:", err);
       setError(err.message);
       throw err;
     }
@@ -74,6 +76,7 @@ export const useExpenses = () => {
       const expenseRef = doc(db, 'expenses', id);
       await updateDoc(expenseRef, data);
     } catch (err: any) {
+      console.error("Error actualizando gasto:", err);
       setError(err.message);
       throw err;
     }
@@ -85,10 +88,28 @@ export const useExpenses = () => {
       const expenseRef = doc(db, 'expenses', id);
       await deleteDoc(expenseRef);
     } catch (err: any) {
+      console.error("Error eliminando gasto:", err);
       setError(err.message);
       throw err;
     }
   };
 
-  return { expenses, loading, error, addExpense, updateExpense, deleteExpense };
+  const getExpensesByCategory = (categoryId: string) => {
+    return expenses.filter(expense => expense.categoryId === categoryId);
+  };
+
+  const getTotalExpenses = () => {
+    return expenses.reduce((total, expense) => total + Number(expense.amount), 0);
+  };
+
+  return { 
+    expenses, 
+    loading, 
+    error, 
+    addExpense, 
+    updateExpense, 
+    deleteExpense,
+    getExpensesByCategory,
+    getTotalExpenses
+  };
 };
