@@ -5,11 +5,13 @@ import { ExpenseForm } from './ExpenseForm';
 import { ExpenseItem } from './ExpenseItem';
 import { Expense } from '../../types/expense';
 import { getCurrentMonth, filterByMonth } from '../../utils/helper';
+import Swal from 'sweetalert2';
+import { Modal } from '../common/Modal'; // Asegúrate de tener este componente
 
 export const ExpensesList: React.FC = () => {
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
   const { categories } = useCategories();
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
 
@@ -22,18 +24,35 @@ export const ExpensesList: React.FC = () => {
     } else {
       await addExpense(expenseData);
     }
-    setShowForm(false);
+    setModalOpen(false);
   };
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará el gasto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
       await deleteExpense(id);
+      Swal.fire("Eliminado", "El gasto ha sido eliminado.", "success");
     }
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingExpense(null);
   };
 
   return (
@@ -50,7 +69,7 @@ export const ExpensesList: React.FC = () => {
           <button
             onClick={() => {
               setEditingExpense(null);
-              setShowForm(true);
+              setModalOpen(true);
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
           >
@@ -59,21 +78,18 @@ export const ExpensesList: React.FC = () => {
         </div>
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingExpense ? 'Editar Gasto' : 'Nuevo Gasto'}
-          </h3>
-          <ExpenseForm
-            onSubmit={handleSubmit}
-            initialValues={editingExpense || undefined}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingExpense(null);
-            }}
-          />
-        </div>
-      )}
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        title={editingExpense ? "Editar Gasto" : "Nuevo Gasto"}
+      >
+        <ExpenseForm
+          key={editingExpense ? editingExpense.id : "new"}
+          onSubmit={handleSubmit}
+          initialValues={editingExpense || undefined}
+          onCancel={closeModal}
+        />
+      </Modal>
 
       <div className="space-y-2">
         {filteredExpenses.map((expense) => (

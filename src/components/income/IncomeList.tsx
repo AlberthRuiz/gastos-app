@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useIncome } from '../../hooks/useIncome';
 import { useCategories } from '../../hooks/useCategory';
 import { IncomeForm } from './IncomeForm';
 import { IncomeItem } from './IncomeItem';
 import { Income } from '../../types/income';
 import { getCurrentMonth, filterByMonth } from '../../utils/helper';
+import Swal from 'sweetalert2';
+import { Modal } from '../common/Modal'; // Asegúrate de tener este componente
 
 export const IncomeList: React.FC = () => {
   const { incomes, addIncome, updateIncome, deleteIncome } = useIncome();
   const { categories } = useCategories();
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
 
@@ -22,18 +24,35 @@ export const IncomeList: React.FC = () => {
     } else {
       await addIncome(incomeData);
     }
-    setShowForm(false);
+    setModalOpen(false);
   };
 
   const handleEdit = (income: Income) => {
     setEditingIncome(income);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este ingreso?')) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará el ingreso.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
       await deleteIncome(id);
+      Swal.fire("Eliminado", "El ingreso ha sido eliminado.", "success");
     }
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingIncome(null);
   };
 
   return (
@@ -50,7 +69,7 @@ export const IncomeList: React.FC = () => {
           <button
             onClick={() => {
               setEditingIncome(null);
-              setShowForm(true);
+              setModalOpen(true);
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
           >
@@ -59,21 +78,18 @@ export const IncomeList: React.FC = () => {
         </div>
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingIncome ? 'Editar Ingreso' : 'Nuevo Ingreso'}
-          </h3>
-          <IncomeForm
-            onSubmit={handleSubmit}
-            initialValues={editingIncome || undefined}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingIncome(null);
-            }}
-          />
-        </div>
-      )}
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        title={editingIncome ? "Editar Ingreso" : "Nuevo Ingreso"}
+      >
+        <IncomeForm
+          key={editingIncome ? editingIncome.id : "new"}
+          onSubmit={handleSubmit}
+          initialValues={editingIncome || undefined}
+          onCancel={closeModal}
+        />
+      </Modal>
 
       <div className="space-y-2">
         {filteredIncomes.map((income) => (
