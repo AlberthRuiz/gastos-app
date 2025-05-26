@@ -7,7 +7,7 @@ import Spinner from "./components/common/Spinner";
 import Home from "./pages/Home";
 import { RequireAuth } from "./context/AuthContext";
 import Categories from "./pages/Categories";
-import { Dashboard } from "./pages/Dashboard";
+import { DashboardPage } from "./pages/Dashboard";
 import { Expenses } from "./pages/Expenses";
 import { Income } from "./pages/Income";
 
@@ -20,7 +20,7 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={user ? <Dashboard/> : <Home />}
+        element={user ? <DashboardPage/> : <Home />}
       />
       <Route
         path="/register"
