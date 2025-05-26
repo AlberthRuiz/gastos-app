@@ -6,7 +6,7 @@ import { IncomeItem } from './IncomeItem';
 import { Income } from '../../types/income';
 import { getCurrentMonth, filterByMonth } from '../../utils/helper';
 import Swal from 'sweetalert2';
-import { Modal } from '../common/Modal'; // Asegúrate de tener este componente
+import { Modal } from '../common/Modal'; 
 
 export const IncomeList: React.FC = () => {
   const { incomes, addIncome, updateIncome, deleteIncome } = useIncome();
