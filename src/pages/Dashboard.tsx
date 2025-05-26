@@ -1,11 +1,11 @@
-import { Layout } from "../components/common/Layout";
-export const Dashboard = () => {
+import React from 'react';
+import { Layout } from '../components/common/Layout';
+import { Dashboard } from '../components/dashboard/Dashboard';
+
+export const DashboardPage: React.FC = () => {
   return (
     <Layout>
-      <div>
-        <h1>Dashboard</h1>
-        <p>Welcome to the dashboard!</p>
-      </div>
+      <Dashboard />
     </Layout>
   );
 };

@@ -10,6 +10,7 @@ import {
   deleteDoc, 
   doc 
 } from 'firebase/firestore';
+
 import { db } from '../utils/firebase';
 import { Income } from '../types/income';
 import { useAuth } from './userAuth';
